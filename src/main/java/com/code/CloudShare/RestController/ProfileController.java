@@ -1,9 +1,7 @@
 package com.code.CloudShare.RestController;
 
-
 import com.code.CloudShare.dto.ProfileDto;
 import com.code.CloudShare.service.ProfileService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +16,9 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerProfile(@RequestBody ProfileDto profileDto)
-    {
-        ProfileDto savedProfile =      profileService.createProfile(profileDto);
-
+    public ResponseEntity<ProfileDto> registerProfile(@RequestBody ProfileDto profileDto) {
+        ProfileDto savedProfile = profileService.createProfile(profileDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProfile);
     }
 }
+
