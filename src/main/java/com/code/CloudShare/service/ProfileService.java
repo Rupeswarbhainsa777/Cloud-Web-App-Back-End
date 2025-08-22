@@ -4,6 +4,7 @@ import com.code.CloudShare.document.ProfileDocument;
 import com.code.CloudShare.dto.ProfileDto;
 import com.code.CloudShare.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -15,6 +16,17 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
 
     public ProfileDto createProfile(ProfileDto profileDto) {
+
+
+        if(profileRepository.existsByClerkId(profileDto.getClerkId()))
+        {
+         return     updateProfile(profileDto);
+
+        }
+
+
+
+
         ProfileDocument profile = ProfileDocument.builder()
                 .clerkId(profileDto.getClerkId())
                 .email(profileDto.getEmail())
@@ -25,14 +37,11 @@ public class ProfileService {
                 .createdAt(Instant.now())
                 .build();
 
-try {
+
     profile = profileRepository.save(profile);
 
-}
-catch (Exception e)
-{
-    throw  new RuntimeException("Email already exists");
-}
+
+
         return ProfileDto.builder()
                 .id(profile.getId())
                 .clerkId(profile.getClerkId())
@@ -43,5 +52,75 @@ catch (Exception e)
                 .credits(profile.getCredits())
                 .createdAt(profile.getCreatedAt())
                 .build();
+    }
+
+
+    public ProfileDto updateProfile(ProfileDto profileDto){
+
+       ProfileDocument existingProfile= profileRepository.findByClerkId(profileDto.getClerkId());
+
+       if(existingProfile!=null)
+       {
+           if(profileDto.getEmail()!=null && !profileDto.getEmail().isEmpty())
+           {
+               existingProfile.setEmail(profileDto.getEmail());
+           }
+           if(profileDto.getFirstName() !=null && profileDto.getFirstName().isEmpty())
+           {
+               existingProfile.setFirstName(profileDto.getFirstName());
+
+           }
+           if(profileDto.getLastName() !=null && profileDto.getLastName().isEmpty())
+       {
+           existingProfile.setLastName(profileDto.getLastName());
+
+       }
+
+
+           if(profileDto.getPhotoUrl() !=null && profileDto.getPhotoUrl().isEmpty())
+           {
+               existingProfile.setPhotoUrl(profileDto.getPhotoUrl());
+
+           }
+
+              profileRepository.save(existingProfile);
+
+
+      return      ProfileDto.builder()
+                   .id(existingProfile.getId())
+                   .email(existingProfile.getEmail())
+                   .clerkId(existingProfile.getClerkId())
+                   .firstName(existingProfile.getFirstName())
+                   .lastName(existingProfile.getLastName())
+                   .credits(existingProfile.getCredits())
+                   .createdAt(existingProfile.getCreatedAt())
+                   .photoUrl(existingProfile.getPhotoUrl())
+                   .build();
+
+
+
+
+       }
+
+
+        return null;
+    }
+
+    public boolean existsByClerkId(String clerkId) {
+        return profileRepository.existsByClerkId(clerkId);
+
+    }
+
+
+
+    public  void  deleteProfile(String clerkId){
+       ProfileDocument existingProfile= profileRepository.findByClerkId(clerkId);
+
+       if(existingProfile != null)
+       {
+           profileRepository.delete(existingProfile);
+       }
+
+
     }
 }
